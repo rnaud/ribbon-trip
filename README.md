@@ -1,5 +1,7 @@
 # Ribbon Trip
 
+[Play the game](https://rnaud.github.io/ribbon-trip/) · [GitHub repository](https://github.com/rnaud/ribbon-trip)
+
 An original Three.js rhythm-runner prototype inspired by Vib-Ribbon's timed moves and surreal, colorful platformer worlds. All scenery and characters are generated with geometry; the 112 BPM soundtrack uses Web Audio synthesis.
 
 ## Run
