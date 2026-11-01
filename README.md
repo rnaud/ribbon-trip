@@ -2,7 +2,7 @@
 
 [Play the game](https://rnaud.github.io/ribbon-trip/) · [GitHub repository](https://github.com/rnaud/ribbon-trip)
 
-An original Three.js rhythm-runner prototype inspired by Vib-Ribbon's timed moves and surreal, colorful platformer worlds. All scenery and characters are generated with geometry; the 112 BPM soundtrack uses Web Audio synthesis.
+An original Three.js rhythm-runner prototype inspired by Vib-Ribbon's timed moves and surreal platformer shapes in a sparse black-and-white vector world. All scenery and characters are generated with geometry; the 112 BPM soundtrack uses Web Audio synthesis.
 
 ## Run
 
@@ -16,9 +16,9 @@ Open the URL printed by Vite. `npm run build` produces the static site in `dist/
 ## Play
 
 - Enter: start or restart
-- Space / Up: jump over orange bumps
-- Down: duck beneath green gates
-- Right: phase through purple walls
+- Space / Up: jump over square bumps
+- Down: duck beneath tall gates
+- Right: phase through oval loops
 - Escape / P: pause or resume
 - The three control cards also work as touch controls.
 
@@ -30,4 +30,4 @@ Trigger a move just before the obstacle reaches the traveler. Each move lasts 0.
 - `src/style.css`: responsive interface
 - `index.html`: game shell and accessible controls
 
-The prototype contains one endless meadow. Google Fonts is optional; local fallback fonts remain available offline.
+The prototype contains one endless monochrome line-art world. Google Fonts is optional; local fallback fonts remain available offline.
