@@ -1,8 +1,107 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#000000"/><title>Ribbon Trip — Find your weird.</title><link rel="stylesheet" href="/src/style.css"/></head>
-<body><div class="shell">
-<header><a class="brand" href="./" aria-label="Ribbon Trip home"><span class="brand-icon">✳</span> ribbon trip<span class="brand-dot">®</span></a><div class="header-note">AN INTERACTIVE LITTLE FEVER DREAM</div><button id="sound" class="sound-button" aria-label="Toggle sound">♫ <span>SOUND OFF</span><i></i></button></header>
-<main><section class="heading"><div><div class="eyebrow"><span></span> LESS THINKING. MORE FEELING.</div><h1>Find your <em>weird.</em><span class="title-star">✳</span></h1></div><p>One ribbon. Three moves. Zero straight lines.<br>Let the rhythm take you somewhere strange.</p></section>
-<section class="game" aria-label="Ribbon Trip game"><canvas id="world"></canvas><div class="grain"></div><div class="game-top"><div class="world-label"><span class="live-dot"></span> WORLD 01 <span class="divider">/</span> VOID GARDEN <span class="tiny">↗</span></div><div class="stats"><div><span>SCORE</span><strong id="score">00000</strong></div><div><span>STREAK</span><strong id="streak">0<span>×</span></strong></div><div><span>ENERGY</span><strong id="energy" class="energy">● ● ● ● ●</strong></div></div></div><div class="side-label">TAKE THE SCENIC ROUTE TO NOWHERE</div><div id="intro" class="intro"><div class="intro-tag">A RHYTHM RUNNER FOR YOUR INNER WEIRDO</div><h2>Good trips.<br><i>Great timing.</i></h2><p>Hop the bumps. Duck the gates.<br>Phase through the impossible.</p><button id="play" class="play-button">LET’S TRIP <span>↗</span></button><div class="start-hint">PRESS ENTER TO DROP IN</div></div><div id="feedback" class="feedback" aria-live="polite"></div><div id="end" class="end hidden"><div class="eyebrow">EVERY TRIP IS A LITTLE DIFFERENT</div><h2>What a trip.</h2><p id="result"></p><button id="replay" class="play-button">ONE MORE TRIP <span>↗</span></button></div><div class="game-bottom"><div class="track"><span class="record">✳</span><div><b>MUSHROOM RADIO</b><span>Sketches in Static · 112 BPM</span></div><div class="equalizer"><i></i><i></i><i></i><i></i></div></div><div id="status" class="status">THE LINE IS WAITING <span>✦</span></div><button id="pause" class="pause hidden" aria-label="Pause game">Ⅱ</button></div></section>
-<section class="instructions"><div class="instructions-label"><span>THE SECRET?</span><h3>Go with the flow.</h3><p>Meet each obstacle on the beat.</p></div><button class="move-card" data-move="jump"><span class="key">SPACE</span><div><h3>Hop it <span>↗</span></h3><p>Little bump? Big jump.</p></div><svg viewBox="0 0 70 40"><path d="M3 32H23V13H47V32H67"/></svg></button><button class="move-card" data-move="duck"><span class="key">↓</span><div><h3>Get low <span>↘</span></h3><p>Let the world pass over.</p></div><svg viewBox="0 0 70 40"><path d="M6 33V9H64V33M14 33H56"/></svg></button><button class="move-card" data-move="phase"><span class="key">→</span><div><h3>Go beyond <span>→</span></h3><p>Some walls are just a feeling.</p></div><svg viewBox="0 0 70 40"><path d="M25 5V35M35 5V35M45 5V35M7 20H63M55 13L63 20L55 27"/></svg></button></section>
-</main><footer><span>A LITTLE STRANGE IS A GOOD THING.</span><span>MADE OF LINES, LOOPS & GOOD VIBRATIONS <span class="footer-star">✳</span></span></footer></div><script type="module" src="/src/main.js"></script></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#050505" />
+<meta name="description" content="Ribbon Trip — a monochrome rhythm runner. Hop, duck and phase on the beat through a hand-drawn fever dream." />
+<title>Ribbon Trip — Find your weird.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
+<link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+<div class="shell">
+  <header class="masthead">
+    <a class="brand" href="./" aria-label="Ribbon Trip home">
+      <span class="brand-icon" aria-hidden="true">✳</span>
+      ribbon trip<span class="brand-dot">®</span>
+    </a>
+    <p class="masthead-note">AN INTERACTIVE LITTLE FEVER DREAM</p>
+    <div class="masthead-tools">
+      <button id="sound" class="pill" aria-pressed="false" aria-label="Toggle sound">
+        <span class="pill-icon" aria-hidden="true">♫</span><span class="pill-label">SOUND OFF</span>
+      </button>
+      <button id="pause" class="pill square" aria-label="Pause game">Ⅱ</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow"><span aria-hidden="true"></span> LESS THINKING. MORE FEELING.</p>
+        <h1>Find your <em>weird.</em><span class="star" aria-hidden="true">✳</span></h1>
+      </div>
+      <p class="hero-note">One ribbon. Three moves. Zero straight lines.<br />Every move lands on the beat of a 112 BPM fever dream.</p>
+    </section>
+
+    <section class="game" aria-label="Ribbon Trip game">
+      <canvas id="world" aria-hidden="true"></canvas>
+
+      <div class="hud">
+        <div class="hud-label"><span class="live-dot" aria-hidden="true"></span> WORLD 01 <span class="slash">/</span> VOID GARDEN</div>
+        <div class="stats">
+          <div class="stat score"><span>SCORE</span><strong id="score">00000</strong></div>
+          <div class="stat combo"><span>COMBO</span><strong><b id="combo">0</b><i id="mult">1×</i></strong></div>
+          <div class="stat accuracy"><span>ACCURACY</span><strong id="accuracy">100%</strong></div>
+          <div class="stat energy-stat"><span>ENERGY</span><strong id="energy" class="energy">● ● ● ● ●</strong></div>
+        </div>
+      </div>
+
+      <div id="judge" class="judge" aria-live="polite"><span id="judge-text"></span><small id="judge-detail"></small></div>
+      <div id="countdown" class="countdown hidden" aria-hidden="true"><small>READY</small><strong id="countdown-number">4</strong></div>
+
+      <div id="overlay" class="overlay">
+        <div id="overlay-inner">
+          <p id="overlay-kicker" class="eyebrow"></p>
+          <h2 id="overlay-title"></h2>
+          <div id="overlay-body"></div>
+          <button id="play" class="button primary">LET’S TRIP <span aria-hidden="true">↗</span></button>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="track">
+          <span class="record" aria-hidden="true">✳</span>
+          <span class="track-meta"><b>MUSHROOM RADIO</b><span>Sketches in Static · 112 BPM</span></span>
+          <span class="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+        <p id="status" class="status">THE LINE IS WAITING</p>
+      </div>
+
+      <p class="side-note" aria-hidden="true">TAKE THE SCENIC ROUTE TO NOWHERE</p>
+    </section>
+
+    <section class="moves" aria-label="Controls">
+      <div class="moves-copy">
+        <p class="eyebrow"><span aria-hidden="true"></span> THE SECRET?</p>
+        <h3>Go with the flow.</h3>
+        <p>Meet each obstacle on the beat.</p>
+      </div>
+      <button class="move" data-move="jump" aria-label="Jump — Space or up arrow">
+        <span class="key">SPACE</span>
+        <span class="move-copy"><b>Hop it</b><i>A low block. Clear it.</i></span>
+        <svg viewBox="0 0 64 40" aria-hidden="true"><path d="M4 32h16V14h24v18h16" /></svg>
+      </button>
+      <button class="move" data-move="duck" aria-label="Duck — down arrow">
+        <span class="key">↓</span>
+        <span class="move-copy"><b>Get low</b><i>A tall gate. Slip under.</i></span>
+        <svg viewBox="0 0 64 40" aria-hidden="true"><path d="M8 33V9h48v24M17 33h30" /></svg>
+      </button>
+      <button class="move" data-move="phase" aria-label="Phase — right arrow">
+        <span class="key">→</span>
+        <span class="move-copy"><b>Go beyond</b><i>A loop. Walk through it.</i></span>
+        <svg viewBox="0 0 64 40" aria-hidden="true"><path d="M24 6v28M33 6v28M42 6v28M6 20h50M47 13l8 7-8 7" /></svg>
+      </button>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <span>A LITTLE STRANGE IS A GOOD THING.</span>
+    <span>MADE OF LINES, LOOPS &amp; GOOD VIBRATIONS <span aria-hidden="true">✳</span></span>
+  </footer>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
