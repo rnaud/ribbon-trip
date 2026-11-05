@@ -25,3 +25,11 @@ for(let i=0;i<6;i++){
   ctx.drawImage(tile,i*240,0);ctx.fillStyle='#fff';ctx.font='12px Arial';ctx.fillText(i<4?'WALK '+(i+1):i===4?'IMPATIENT':'DELIGHTED',i*240+20,340);
 }
 writeFileSync('/tmp/linea-review/personality.png',strip.toBuffer('image/png'));
+
+const glances=createCanvas(960,360),gp=glances.getContext('2d');
+for(let i=0;i<4;i++){
+  const actor=createPlayer();actor.idle=5;actor.viewerLook=[0,.5,1,1][i];actor.facing=i===3?-1:1;
+  drawScene(tp,{...frame,p:actor,cam:310,vw:240,width:240,height:360,ground:300,scale:1,dpr:1,time:5,askTime:0,drawings:createDrawingState()});
+  gp.drawImage(tile,i*240,0);gp.fillStyle='#fff';gp.font='12px Arial';gp.fillText(['RESTING','TURNING','LOOKING AT YOU','FACING LEFT'][i],i*240+20,340);
+}
+writeFileSync('/tmp/linea-review/idle-glance.png',glances.toBuffer('image/png'));

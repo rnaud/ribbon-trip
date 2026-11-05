@@ -17,6 +17,9 @@ const hipRest=new Vector3(0,-64,0),spineRest=new Vector3(0,-112,0),headRest=new 
 
 export function contourRig(p,time,playing=true){
   const motion=playing&&p.grounded?Math.min(1,Math.abs(p.vx)/260):0;
+  const gaze=p.viewerLook??0;
+  const resting=p.grounded?(1-motion):0;
+  const settle=resting*Math.sin(p.idle*1.2)*.035;
   const phase=p.walk;
   const swing=Math.sin(phase),double=Math.cos(phase*2);
   const mood=p.mood??'neutral';
@@ -29,14 +32,14 @@ export function contourRig(p,time,playing=true){
   root.scale.set(1/Math.sqrt(1-crouch+rise),1-crouch+rise,1/Math.sqrt(1-crouch+rise));
   // Hips, ribcage, and head counter-rotate with different phases. These are
   // genuine rotations in depth, so the projecting arm changes apparent length.
-  hips.rotation.set(motion*.07*swing,motion*.22*swing,motion*.035*swing);
-  hips.position.y=-64-motion*(3+double*3)-breath*.7;
-  spine.rotation.set(motion*.055*Math.cos(phase),-motion*.4*swing+(asking?.22:0),
-    (p.bodyLean??motion)*.075+motion*.04*Math.sin(phase-.5));
-  head.rotation.set(.06*breath,-motion*.2*Math.sin(phase-.7)+(asking?-.3:0),
-    -(p.headLean??motion)*.065+motion*.065*Math.sin(phase-.85)+(mood==='embarrassed'?.18:0)+(asking?-.12:0));
+  hips.rotation.set(motion*.07*swing,motion*.22*swing,motion*.035*swing+settle);
+  hips.position.y=-64-motion*(3+double*3)-breath*(.7+resting*1.5);
+  spine.rotation.set(motion*.055*Math.cos(phase),-motion*.4*swing+(asking?.22:0)-gaze*.18,
+    (p.bodyLean??motion)*.075+motion*.04*Math.sin(phase-.5)-settle*.7);
+  head.rotation.set(.06*breath,-motion*.2*Math.sin(phase-.7)+(asking?-.3:0)-gaze*.3,
+    -(p.headLean??motion)*.065+motion*.065*Math.sin(phase-.85)+(mood==='embarrassed'?.18:0)+(asking?-.12:0)+gaze*.09+resting*Math.sin(time*1.8)*.025);
   arm.rotation.set(motion*.95*Math.sin(phase+.5)+(asking?-.45:0)-airborne*.65,
-    motion*.35*Math.cos(phase),motion*.22*Math.sin(phase+.25)+(upset?Math.sin(time*12)*.12:0));
+    motion*.35*Math.cos(phase),motion*.22*Math.sin(phase+.25)+(upset?Math.sin(time*12)*.12:0)+resting*Math.sin(time*2.5-.6)*.055);
   root.updateMatrixWorld(true);
   return (x,y)=>{
     // Rounded cross-section supplies depth to the otherwise hand-drawn shape.

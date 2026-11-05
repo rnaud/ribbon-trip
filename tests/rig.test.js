@@ -19,3 +19,15 @@ test('arm swing foreshortens in projection and head has independent follow-throu
   assert.ok(Math.hypot(handA[0]-handB[0],handA[1]-handB[1])>3);
   assert.ok(Math.abs((headA[0]-chestA[0])-(headB[0]-chestB[0]))>1);
 });
+
+test('idle audience glance eases in, holds, and yields to movement and reactions',async()=>{
+  const {updateIdleActing,idleGlance}=await import('../src/platformer/acting.js');
+  assert.equal(idleGlance(1),0);assert.equal(idleGlance(5),1);assert.equal(idleGlance(9),0);
+  const p=createPlayer();p.idle=5;
+  for(let i=0;i<120;i++)updateIdleActing(p,1/120);
+  assert.ok(p.viewerLook>.99);
+  p.vx=260;for(let i=0;i<60;i++)updateIdleActing(p,1/120);
+  assert.ok(p.viewerLook<.01);
+  p.vx=0;p.viewerLook=1;for(let i=0;i<60;i++)updateIdleActing(p,1/120,{blocked:true});
+  assert.ok(p.viewerLook<.01);
+});

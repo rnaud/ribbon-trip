@@ -40,7 +40,7 @@ Smooth Bézier outlines are drawn into a canvas texture and displayed by Three.j
 - `tests/runtime.test.js`: state/input integration using a stub renderer
 - `npm run render:frames`: drawing-code snapshots in `/tmp/linea-review`
 
-Validation includes a production build, 18 automated collision, rig, and runtime checks, offline drawing frames, and a local browser smoke check for walking, jumping, and console errors. The automated tests cover partial drawing support and the lift transition; they do not replace a full playthrough.
+Validation includes a production build, 19 automated collision, rig, and runtime checks, offline drawing frames, and a local browser smoke check for walking, jumping, and console errors. The automated tests cover partial drawing support and the lift transition; they do not replace a full playthrough.
 
 ## Visual references
 
@@ -49,3 +49,5 @@ The proportions, white stroke, and flat background were studied from [RAI’s re
 ## Character animation
 
 A procedural Three.js bone rig drives the ink contour in three dimensions before orthographic projection. Hips and shoulders counter-rotate, the arm swings through depth, and the head follows with a delay. The hand-authored outline remains the visible artwork; this is not a shaded mesh or an imported character model. Foot contacts stay pinned to the ground. Jump anticipation, landing squash, and vertical camera tracking give actions weight. Idle behavior cycles through foot tapping, looking around, impatience, and shrugging. Unsolved puzzles prompt curiosity; active drawings prompt watching; repeated requests trigger impatience. Completion brings delight, falling brings alarm, and respawning brings embarrassment. Mouth and hand motion vary with the reaction. The controls remain responsive during the reactions.
+
+Idle acting adds breathing, weight shifts, and relaxed hand motion. After a few quiet seconds the character turns toward the audience, holds a three-quarter face, then returns to profile. This happens on the title screen too. Movement and active reactions ease out of the glance; pausing freezes it.

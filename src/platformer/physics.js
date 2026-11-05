@@ -38,7 +38,7 @@ export function surfaces(drawn=false,time=0){
   return [...SEGMENTS,...extras].sort((a,b)=>a.a-b.a);
 }
 export function support(x, list){return list.find(s=>x>=s.a && x<=s.b);}
-export function createPlayer(){return {x:430,y:0,vx:0,vy:0,grounded:true,coyote:.11,buffer:0,facing:1,checkpoint:430,falls:0,walk:0,bodyLean:0,headLean:0,land:0,anticipation:0,launch:0,idle:0,mood:"neutral",moodTime:0,platform:null,platformY:0};}
+export function createPlayer(){return {x:430,y:0,vx:0,vy:0,grounded:true,coyote:.11,buffer:0,facing:1,checkpoint:430,falls:0,walk:0,bodyLean:0,headLean:0,land:0,anticipation:0,launch:0,idle:0,viewerLook:0,mood:"neutral",moodTime:0,platform:null,platformY:0};}
 export function stepPlayer(p,input,dt,list,drawn=new Set()){
   if(p.grounded&&p.platform){const platform=list.find(s=>s.id===p.platform);if(platform)p.y+=platform.y-p.platformY;}
   let jumped=false;

@@ -38,7 +38,8 @@ function character(){
   const walking=Math.abs(p.vx)>10&&p.grounded&&['playing','paused'].includes(state);
   const stride=walking?Math.sin(p.walk)*18: p.mood==='tap'?Math.sin(time*11)*3:0;
   const bounce=0;
-  const emotion=p.mood??'neutral';
+  const gaze=p.viewerLook??0;
+  const emotion=gaze>.25?'audience':p.mood??'neutral';
   const gesture=askTime>0||state==='over'||['impatient','panic','delighted','surprised','shrug'].includes(emotion);
   const pointing=['curious','watch','ask'].includes(emotion);
   const nod=walking?Math.sin(p.walk*2)*4:['look','watch','curious'].includes(emotion)?-8:emotion==='embarrassed'?10:0;
@@ -79,18 +80,28 @@ function character(){
     c.bezierCurveTo(-34,-113+swing,-24,-104,-20,-99);
     c.bezierCurveTo(-25,-117,-27,-129,-29,-139);
   }
-  // The forehead and nose are a single long, rounded lobe; no separate eyes or hair.
-  c.bezierCurveTo(-44,-163,-28,-184,4,-185);
-  c.bezierCurveTo(27,-187,51,-176,63,-163);
-  c.bezierCurveTo(76,-148,66,-141,53,-145);
-  c.bezierCurveTo(43,-148,35,-154,27,-160);
-  c.bezierCurveTo(34,-147,42,-141,46,-140);
+  // Morph the profile into a rounded three-quarter face as the head turns.
+  // A separate front drawing keeps the nose readable instead of flattening it.
+  const headCurve=(side,front)=>c.bezierCurveTo(...side.map((v,i)=>v+(front[i]-v)*gaze));
+  headCurve([-44,-163,-28,-184,4,-185],[-42,-166,-26,-185,0,-185]);
+  headCurve([27,-187,51,-176,63,-163],[25,-187,39,-174,38,-159]);
+  headCurve([76,-148,66,-141,53,-145],[38,-151,35,-145,32,-141]);
+  headCurve([43,-148,35,-154,27,-160],[30,-138,27,-135,24,-133]);
+  headCurve([34,-147,42,-141,46,-140],[23,-132,21,-131,19,-131]);
   const mouth=['impatient','panic','ask','delighted'].includes(emotion)?5+Math.sin(time*18)*3:0;
-  c.bezierCurveTo(37,-137+mouth,28,-141+mouth,24,-145);
-  c.bezierCurveTo(24,-134,15,-131,10,-130);
+  headCurve([37,-137+mouth,28,-141+mouth,24,-145],[17,-130,15,-130,14,-130]);
+  headCurve([24,-134,15,-131,10,-130],[13,-130,11,-130,10,-130]);
   c.bezierCurveTo(19,-109,27,-88,27,-63);
   c.bezierCurveTo(28,-36,24,-13,22+stride*.5,0);
   c.lineTo(30+stride*.5,0);pen.fillStyle=BLUE;pen.fill();pen.stroke();pen.fillStyle=INK;
+  if(gaze>.2){
+    pen.save();pen.globalAlpha=Math.min(1,(gaze-.2)/.55);pen.lineWidth=2.5;
+    // Two small lids and a foreshortened nose make the audience glance legible.
+    pen.beginPath();c.moveTo(-13,-163);c.bezierCurveTo(-10,-166,-7,-166,-4,-163);
+    c.moveTo(13,-163);c.bezierCurveTo(16,-166,19,-166,22,-163);
+    c.moveTo(5,-159);c.bezierCurveTo(13,-150,13,-145,3,-147);
+    c.moveTo(-2,-138);c.bezierCurveTo(3,-136,9,-136,13,-139);pen.stroke();pen.restore();
+  }
   // Expressive action strokes appear only for a complaint or a hard landing.
   if(gesture){path(c=>{c.moveTo(77,-165);c.lineTo(90,-171);c.moveTo(80,-151);c.lineTo(96,-150);c.moveTo(76,-138);c.lineTo(86,-131);});}
   if(p.land>.06){path(c=>{c.moveTo(-43,-12);c.lineTo(-52,-20);c.moveTo(43,-12);c.lineTo(52,-20);});}
