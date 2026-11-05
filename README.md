@@ -4,7 +4,7 @@
 
 A short side-scrolling platformer inspired by Osvaldo Cavandoli’s **La Linea**. A flat blue field, rounded white contour, expressive large-nosed figure, and a ground line that becomes the world. The character’s silhouette joins the ground when standing; jumping temporarily separates it for platforming.
 
-Walk across seven sections of steps and gaps, with a route almost twice as long as the first platformer. Ask the artist to draw a bridge, stairs, a spring, a moving lift, and the final door. Each drawing changes traversal: jump from the spring to reach the high ledge, and ride the lift before jumping to its upper landing. Falling returns you to the latest checkpoint; there is no life limit. The old three-button rhythm game has been replaced by movement and platform collision.
+Walk across seven sections of steps and gaps, with a route almost twice as long as the first platformer. Ask the artist to draw a bridge, stairs, a spring, a moving lift, and the final door. Bridge, stair, and lift surfaces become solid as the pencil traces them—you can use the finished portion immediately. Each drawing changes traversal: jump from the spring to reach the high ledge, and ride the lift before jumping to its upper landing. Falling returns you to the latest checkpoint; there is no life limit. The old three-button rhythm game has been replaced by movement and platform collision.
 
 ## Controls
 
@@ -34,12 +34,13 @@ Smooth Bézier outlines are drawn into a canvas texture and displayed by Three.j
 - `src/main.js`: input, state, camera, audio, Three.js rendering
 - `src/platformer/physics.js`: collision, movement, checkpoints, level surfaces
 - `src/platformer/puzzles.js`: five progressive drawing interactions and lift timing
+- `src/platformer/rig.js`: procedural 3D bones, contour skinning, orthographic projection
 - `src/platformer/drawing.js`: continuous contours, poses, scenery, artist pencil
 - `tests/platformer.test.js`: collision and traversal checks
 - `tests/runtime.test.js`: state/input integration using a stub renderer
 - `npm run render:frames`: drawing-code snapshots in `/tmp/linea-review`
 
-The physics and runtime tests do not replace live browser/WebGL testing. The current redesign was verified by production build, thirteen automated checks, and offline drawing frames; browser automation was unavailable during this update.
+Validation includes a production build, 18 automated collision, rig, and runtime checks, offline drawing frames, and a local browser smoke check for walking, jumping, and console errors. The automated tests cover partial drawing support and the lift transition; they do not replace a full playthrough.
 
 ## Visual references
 
@@ -47,4 +48,4 @@ The proportions, white stroke, and flat background were studied from [RAI’s re
 
 ## Character animation
 
-The walk deforms the body contour and shifts the feet and arms. Jump anticipation, landing squash, and vertical camera tracking give actions weight. Idle behavior cycles through foot tapping, looking around, impatience, and shrugging. Unsolved puzzles prompt curiosity; active drawings prompt watching; repeated requests trigger impatience. Completion brings delight, falling brings alarm, and respawning brings embarrassment. Mouth and hand motion vary with the reaction. The controls remain responsive during the reactions.
+A procedural Three.js bone rig drives the ink contour in three dimensions before orthographic projection. Hips and shoulders counter-rotate, the arm swings through depth, and the head follows with a delay. The hand-authored outline remains the visible artwork; this is not a shaded mesh or an imported character model. Foot contacts stay pinned to the ground. Jump anticipation, landing squash, and vertical camera tracking give actions weight. Idle behavior cycles through foot tapping, looking around, impatience, and shrugging. Unsolved puzzles prompt curiosity; active drawings prompt watching; repeated requests trigger impatience. Completion brings delight, falling brings alarm, and respawning brings embarrassment. Mouth and hand motion vary with the reaction. The controls remain responsive during the reactions.

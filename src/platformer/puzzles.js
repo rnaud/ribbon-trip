@@ -11,3 +11,6 @@ export function requestDrawing(drawings,x){if(drawings.active)return null;const 
 export function advanceDrawing(drawings,dt){if(!drawings.active)return null;drawings.age+=dt;if(drawings.age<drawings.active.duration)return null;const q=drawings.active;drawings.done.add(q.id);drawings.active=null;drawings.age=0;return q;}
 export function liftHeight(time){const t=((time%8)+8)%8;return t<1?0:t<3?(t-1)*125:t<5?250:t<7?(7-t)*125:0;}
 export function drawingTip(q,progress){const lengths=q.points.slice(1).map((b,i)=>Math.hypot(b[0]-q.points[i][0],b[1]-q.points[i][1]));let remaining=lengths.reduce((a,b)=>a+b,0)*Math.max(0,Math.min(1,progress));const points=[q.points[0]];for(let i=0;i<lengths.length;i++){if(remaining>=lengths[i]){points.push(q.points[i+1]);remaining-=lengths[i];}else{const a=q.points[i],b=q.points[i+1],f=remaining/lengths[i];points.push([a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]);break;}}return points;}
+
+// Shared by rendering and collisions, including pencil arrival/departure.
+export function drawingProgress(drawings){const q=drawings.active;return q?Math.max(0,Math.min(1,(drawings.age-.25)/(q.duration-.5))):0;}

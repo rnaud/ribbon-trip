@@ -1,4 +1,4 @@
-import {liftHeight} from './puzzles.js';
+import {liftHeight, drawingTip, drawingProgress} from './puzzles.js';
 export const GRAVITY = 1550;
 export const SPEED = 260;
 export const JUMP = 620;
@@ -20,15 +20,25 @@ export const SEGMENTS = [
 ];
 export const REPAIR = {a:2500,b:2740,y:0};
 export function surfaces(drawn=false,time=0){
-  const done=drawn instanceof Set?drawn:new Set(drawn?['bridge']:[]);
+  const done=drawn instanceof Set?drawn:drawn?.done??new Set(drawn?['bridge']:[]);
   const extras=[];
   if(done.has('bridge'))extras.push(REPAIR);
   if(done.has('stairs'))extras.push({a:5600,b:5700,y:60},{a:5700,b:5800,y:120},{a:5800,b:5900,y:180},{a:5900,b:6050,y:240});
-  if(done.has('lift'))extras.push({a:8580,b:8810,y:liftHeight(time),id:'lift',oneWay:true});
+  if(done.has('lift'))extras.push({a:8580,b:8810,y:liftHeight(time-(drawn?.liftStartedAt??0)),id:'lift',oneWay:true});
+  // Only the ink already on the page supports the player. Ignore vertical
+  // strokes and decorative lower edges of the lift carriage.
+  const q=drawn?.active;
+  if(q&&['bridge','stairs','lift'].includes(q.id)){
+    const points=drawingTip(q,drawingProgress(drawn));
+    for(let i=1;i<points.length;i++){
+      const [a,y]=points[i-1],[b,by]=points[i];
+      if(y===by&&b>a&&(q.id!=='lift'||i===1))extras.push({a,b,y,...(q.id==='lift'?{id:'lift',oneWay:true}:{})});
+    }
+  }
   return [...SEGMENTS,...extras].sort((a,b)=>a.a-b.a);
 }
 export function support(x, list){return list.find(s=>x>=s.a && x<=s.b);}
-export function createPlayer(){return {x:430,y:0,vx:0,vy:0,grounded:true,coyote:.11,buffer:0,facing:1,checkpoint:430,falls:0,walk:0,land:0,anticipation:0,launch:0,idle:0,mood:"neutral",moodTime:0,platform:null,platformY:0};}
+export function createPlayer(){return {x:430,y:0,vx:0,vy:0,grounded:true,coyote:.11,buffer:0,facing:1,checkpoint:430,falls:0,walk:0,bodyLean:0,headLean:0,land:0,anticipation:0,launch:0,idle:0,mood:"neutral",moodTime:0,platform:null,platformY:0};}
 export function stepPlayer(p,input,dt,list,drawn=new Set()){
   if(p.grounded&&p.platform){const platform=list.find(s=>s.id===p.platform);if(platform)p.y+=platform.y-p.platformY;}
   let jumped=false;
@@ -38,6 +48,8 @@ export function stepPlayer(p,input,dt,list,drawn=new Set()){
   const target=direction*SPEED;
   p.vx+=Math.sign(target-p.vx)*Math.min(Math.abs(target-p.vx),(direction?1800:2100)*dt);
   if(direction)p.facing=direction;
+  p.bodyLean+=(p.vx*p.facing/SPEED-p.bodyLean)*(1-Math.exp(-dt*12));
+  p.headLean+=(p.bodyLean-p.headLean)*(1-Math.exp(-dt*6));
   if(p.buffer>0&&p.coyote>0&&p.anticipation<=0){p.anticipation=.07;p.buffer=0;}
   if(p.anticipation>0){p.anticipation-=dt;if(p.anticipation<=0){const spring=drawn.has('spring')&&Math.abs(p.x-6900)<65;p.vy=spring?1030:JUMP;p.launch=spring?.65:0;p.grounded=false;p.coyote=0;jumped=true;}}
   if(!input.jump&&p.vy>260&&p.launch<=0)p.vy=Math.max(260,p.vy-GRAVITY*dt*1.5);

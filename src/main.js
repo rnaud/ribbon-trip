@@ -55,14 +55,14 @@ function update(dt){
   if(state==='playing'){
     elapsed+=dt;
     const completed=advanceDrawing(drawings,dt);
-    if(completed){$('hint').textContent=completed.thanks;mood('delighted',2);sound(500,.15,.04,650);}
+    if(completed){if(completed.id==='lift')drawings.liftStartedAt=time;$('hint').textContent=completed.thanks;mood('delighted',2);sound(500,.15,.04,650);}
     p.moodTime=Math.max(0,p.moodTime-dt);
     p.idle=p.grounded&&Math.abs(p.vx)<12?p.idle+dt:0;
     const nearby=nearbyPuzzle(p.x,drawings);
     if(p.moodTime===0){p.mood=drawings.active?'watch':nearby?'curious':p.idle%12>9?'shrug':p.idle%12>7?'impatient':p.idle%12>4?'look':p.idle%12>2?'tap':'neutral';}
-    if(fallTime>0){fallTime+=dt;if(fallTime>1.1){respawn(p,surfaces(drawings.done,time));fallTime=0;mood('embarrassed',2);$('hint').textContent='Let’s pretend that didn’t happen.';}}
+    if(fallTime>0){fallTime+=dt;if(fallTime>1.1){respawn(p,surfaces(drawings,time));fallTime=0;mood('embarrassed',2);$('hint').textContent='Let’s pretend that didn’t happen.';}}
     else{
-      const wasGrounded=p.grounded;const result=stepPlayer(p,input,dt,surfaces(drawings.done,time),drawings.done);
+      const wasGrounded=p.grounded;const result=stepPlayer(p,input,dt,surfaces(drawings,time),drawings.done);
       if(result.jumped){mood(p.launch?'surprised':'determined',.6);sound(230,.18,.035,p.launch?850:510);}
       if(!wasGrounded&&p.grounded)sound(115,.07,.04,65);
       if(!p.grounded&&p.y < -60&&p.vy < -300&&p.mood!=='panic')mood('panic',1.5);

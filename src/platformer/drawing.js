@@ -1,5 +1,6 @@
+import {contourRig} from './rig.js';
 import {surfaces} from './physics.js';
-import {PUZZLES, drawingTip, liftHeight} from './puzzles.js';
+import {PUZZLES, drawingTip, drawingProgress, liftHeight} from './puzzles.js';
 export const INK='#fffef4';
 export const BLUE='#07569b';
 
@@ -16,7 +17,7 @@ function terrain(){
     if(drawings.done.has(q.id)){
       if(q.id==='spring'||q.id==='door')strokePoints(q.points);
       if(q.id==='lift'){
-        const y=ground-liftHeight(time);
+        const y=ground-liftHeight(time-(drawings.liftStartedAt??0));
         path(c=>{c.moveTo(8695-cam,y);c.lineTo(8695-cam,ground-360);c.bezierCurveTo(8695-cam,ground-380,8730-cam,ground-380,8730-cam,ground-360);c.lineTo(8730-cam,ground-40);});
         path(c=>{c.moveTo(8580-cam,y);c.lineTo(8580-cam,y+18);c.lineTo(8810-cam,y+18);c.lineTo(8810-cam,y);});
       }
@@ -34,7 +35,7 @@ function terrain(){
 function character(){
   const x=p.x-cam,y=ground-p.y;
   if(x<-160||x>vw+160)return;
-  const walking=Math.abs(p.vx)>10&&p.grounded&&state==='playing';
+  const walking=Math.abs(p.vx)>10&&p.grounded&&['playing','paused'].includes(state);
   const stride=walking?Math.sin(p.walk)*18: p.mood==='tap'?Math.sin(time*11)*3:0;
   const bounce=0;
   const emotion=p.mood??'neutral';
@@ -42,18 +43,18 @@ function character(){
   const pointing=['curious','watch','ask'].includes(emotion);
   const nod=walking?Math.sin(p.walk*2)*4:['look','watch','curious'].includes(emotion)?-8:emotion==='embarrassed'?10:0;
   const lean=walking?8+Math.sin(p.walk)*4:pointing?9:emotion==='embarrassed'?12:0;
-  const squish=p.anticipation>0?.22*Math.sin(p.anticipation/.07*Math.PI):p.land>0?Math.sin(p.land/.15*Math.PI)*.16:0;
+  const project=contourRig(p,time,['playing','paused'].includes(state));
   pen.save();pen.translate(x,y);pen.scale(p.facing,1);
   // Erase only the ground under the figure, allowing its contour to become the ground.
   if(p.grounded){pen.fillStyle=BLUE;pen.fillRect(-27-stride*.4,-3,57+stride*.9,6);pen.fillStyle=INK;}
-  pen.translate(0,-bounce);pen.scale(1+squish,1-squish);
+  pen.translate(0,-bounce);
   if(fallTime>0){pen.rotate(Math.sin(fallTime*7)*.12);}
   // One outline: heel, back, gesturing hand, shoulder, enormous nose, chin, belly, toe.
   const warp=(x,y)=>{
     const h=Math.max(0,Math.min(1,-y/185));
     const arm=x<-32&&y<-80&&y>-175;
     const flourish=emotion==='delighted'?Math.sin(time*11)*11:emotion==='panic'?Math.sin(time*22)*15:emotion==='impatient'?Math.sin(time*8)*6:emotion==='shrug'?12:0;
-    return [x+lean*h+(arm?flourish*.25:0),y+nod*h*h+(arm?flourish:0)];
+    return project(x+lean*h+(arm?flourish*.25:0),y+nod*h*h+(arm?flourish:0));
   };
   const c={moveTo:(x,y)=>pen.moveTo(...warp(x,y)),lineTo:(x,y)=>pen.lineTo(...warp(x,y)),bezierCurveTo:(a,b,d,e,f,g)=>pen.bezierCurveTo(...warp(a,b),...warp(d,e),...warp(f,g))};
   pen.beginPath();c.moveTo(-27-stride*.4,bounce);
@@ -106,7 +107,7 @@ function character(){
 
 function pencil(){
   const q=drawings.active;if(!q)return;
-  const progress=Math.max(0,Math.min(1,(drawings.age-.25)/(q.duration-.5)));
+  const progress=drawingProgress(drawings);
   const points=drawingTip(q,progress);strokePoints(points);
   const tip=points.at(-1),lift=drawings.age<.25?(1-drawings.age/.25)*140:drawings.age>q.duration-.25?(drawings.age-q.duration+.25)*560:0;
   pen.save();pen.translate(tip[0]-cam,ground-tip[1]-lift);pen.rotate(.5);
