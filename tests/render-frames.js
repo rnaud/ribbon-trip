@@ -1,0 +1,14 @@
+import {createCanvas} from '@napi-rs/canvas';
+import {writeFileSync,mkdirSync} from 'node:fs';
+import {drawScene} from '../src/platformer/drawing.js';
+import {createPlayer} from '../src/platformer/physics.js';
+mkdirSync('/tmp/linea-review',{recursive:true});
+const canvas=createCanvas(1280,720),pen=canvas.getContext('2d');
+const p=createPlayer();
+const frame={p,cam:p.x-1280*.58,time:0,state:'idle',askTime:0,fallTime:0,repairTime:-1,repaired:false,vw:1280,ground:547,width:1280,height:720,scale:1,dpr:1};
+drawScene(pen,frame);writeFileSync('/tmp/linea-review/idle.png',canvas.toBuffer('image/png'));
+p.x=2390;frame.cam=p.x-410;frame.state='playing';frame.askTime=.8;frame.repairTime=.9;
+drawScene(pen,frame);writeFileSync('/tmp/linea-review/artist.png',canvas.toBuffer('image/png'));
+p.x=850;p.y=160;p.grounded=false;p.vx=260;frame.cam=p.x-410;frame.askTime=0;frame.repairTime=-1;
+drawScene(pen,frame);writeFileSync('/tmp/linea-review/jump.png',canvas.toBuffer('image/png'));
+console.log('Rendered idle, artist, and jump frames to /tmp/linea-review');
