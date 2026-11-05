@@ -1,13 +1,12 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><meta name="theme-color" content="#07569b"/><meta name="description" content="A little platform adventure drawn from one white line. A playable tribute to the visual world of Osvaldo Cavandoli’s La Linea."/><title>A Little Line — a playable tribute</title><link rel="stylesheet" href="/src/style.css"/></head>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><meta name="theme-color" content="#07569b"/><meta name="description" content="An interactive cartoon drawn from one white line. A playable tribute to the visual world of Osvaldo Cavandoli’s La Linea."/><title>A Little Line — a playable tribute</title><link rel="stylesheet" href="/src/style.css"/></head>
 <body>
-<main id="stage"><canvas id="world" aria-label="A side-scrolling platformer drawn in a continuous white contour"></canvas>
+<main id="stage"><canvas id="world" aria-label="An autonomous cartoon character waiting for your help"></canvas>
 <header><a href="./" class="wordmark">a little line<span> / </span></a><span class="dedication">A PLAYABLE TRIBUTE TO CAVANDOLI</span><div class="tools"><button id="sound" aria-label="Toggle sound" aria-pressed="false">SOUND OFF</button><button id="pause" aria-label="Pause game" hidden>Ⅱ</button><button id="restart" aria-label="Restart adventure">↺</button></div></header>
-<div id="chapter"><span id="chapter-no">01</span><i></i><span id="chapter-name">THE FIRST STEP</span></div>
-<section id="intro" class="overlay"><p class="eyebrow">ONE LINE. A WHOLE LOT OF TROUBLE.</p><h1>Where does<br>the line go?</h1><p class="description">A little walk. An unexpected gap.<br>And a rather opinionated drawing.</p><button id="play" class="begin">LET’S FIND OUT <span>→</span></button><small>OR PRESS ENTER</small></section>
+<div id="chapter"><span id="chapter-no">01</span><i></i><span id="chapter-name">A PERFECTLY ORDINARY WALK</span></div>
+<section id="intro" class="overlay"><p class="eyebrow">ONE LINE. A WHOLE LOT OF TROUBLE.</p><h1>Where does<br>the line go?</h1><p class="description">He does the walking. You lend a hand.<br>Keep him waiting and hear about it.</p><button id="play" class="begin">LET’S FIND OUT <span>→</span></button><small>OR PRESS ENTER</small></section>
 <section id="pause-panel" class="center-panel" hidden><p class="eyebrow">A MOMENT BETWEEN LINES</p><h2>Hold that thought.</h2><button id="resume" class="begin">KEEP WALKING <span>→</span></button></section>
 <section id="end" class="center-panel" hidden><p class="eyebrow">FIN.</p><h2>That’s where<br>the line goes.</h2><p id="summary"></p><button id="replay" class="begin">DRAW IT AGAIN <span>↺</span></button></section>
 <div id="hint" role="status" aria-live="polite"></div>
-<footer><div class="controls"><span><kbd>←</kbd><kbd>→</kbd> WALK</span><span><kbd>SPACE</kbd> JUMP</span><span><kbd>E</kbd> ASK THE ARTIST</span></div><span class="footer-note">A SMALL ADVENTURE IN A SINGLE STROKE.</span></footer>
-<div id="touch-controls"><button data-hold="left" aria-label="Walk left">←</button><button data-hold="right" aria-label="Walk right">→</button><button id="touch-ask" aria-label="Ask the artist">E</button><button data-hold="jump" aria-label="Jump">↑</button></div>
+<footer><div class="controls"><button id="touch-ask" disabled>HE DOES THE WALKING</button><span><kbd>E</kbd> / SPACE / TAP TO HELP</span></div><span class="footer-note">HE WALKS. YOU DRAW. HE COMPLAINS.</span></footer>
 </main><script type="module" src="/src/main.js"></script></body></html>

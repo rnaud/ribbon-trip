@@ -5,9 +5,9 @@ export function idleGlance(idle){
   const t=idle%15;
   return smooth((t-3.2)/.85)*(1-smooth((t-6.3)/1.1));
 }
-export function updateIdleActing(p,dt,{blocked=false}={}){
+export function updateIdleActing(p,dt,{blocked=false,demand=false}={}){
   const resting=p.grounded&&Math.abs(p.vx)<12;
-  const target=resting&&!blocked?idleGlance(p.idle):0;
+  const target=resting&&!blocked?(demand?1:idleGlance(p.idle)):0;
   p.viewerLook??=0;
   p.viewerLook+=(target-p.viewerLook)*(1-Math.exp(-dt*(target>p.viewerLook?9:12)));
 }
@@ -19,7 +19,7 @@ export function poseTarget(p){
   const is=(...names)=>names.includes(mood)?1:0;
   const open=is('impatient','panic','delighted','surprised','shrug')*windup;
   return {
-    walk:p.grounded?Math.min(1,Math.abs(p.vx)/260):0,
+    walk:p.grounded?Math.min(1,Math.abs(p.vx)/170):0,
     point:is('curious','watch','ask')*windup,
     open,hip:is('skeptical','sigh')*windup,
     nod:is('look','watch','curious')*-8+is('embarrassed','sigh')*12-is('delighted','shrug')*10*accent,

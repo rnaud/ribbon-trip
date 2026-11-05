@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {contourRig} from '../src/platformer/rig.js';
 import {createPlayer} from '../src/platformer/physics.js';
 
-test('projected rig pins contact points and remains finite through walk, jump and squash',()=>{
+test('projected rig preserves foot contacts through animated poses',()=>{
   const p=createPlayer();p.vx=260;
   for(let i=0;i<60;i++){
     p.walk=i/60*Math.PI*2;p.anticipation=i<10?.07-i*.007:0;p.land=i>40?.15-(i-40)*.007:0;
@@ -51,6 +51,7 @@ test('feet retain the same contact spacing through every stationary reaction',as
   const {updateActing}=await import('../src/platformer/acting.js');
   const p=createPlayer();for(let i=0;i<35;i++)stepPlayer(p,{right:true},1/120,surfaces());
   for(let i=0;i<25;i++)stepPlayer(p,{},1/120,surfaces());
+  p.x=2490;p.y=0;p.vx=0;
   const stride=p.footStride,x=p.x;
   for(const mood of ['look','skeptical','sigh','impatient','shrug','delighted']){
     p.mood=mood;

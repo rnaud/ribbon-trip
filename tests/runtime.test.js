@@ -22,5 +22,18 @@ function harness(){
   vm.runInContext(source+'\nglobalThis.inspect=()=>({p,state,drawings,elapsed});globalThis.advance=seconds=>{for(let i=0;i<seconds*120;i++)update(1/120);render();};globalThis.setPlayer=(values)=>Object.assign(p,values);',context);
   return {context,get,key:(code,down=true)=>handlers[down?'keydown':'keyup']({code,repeat:false,preventDefault(){}})};
 }
-test('runtime starts, moves with held input, freezes on pause and restarts cleanly',()=>{const h=harness();assert.equal(h.context.inspect().state,'idle');h.get('play').onclick();h.key('ArrowRight');h.context.advance(.5);assert.ok(h.context.inspect().p.x>500);h.key('Escape');const x=h.context.inspect().p.x;h.context.advance(1);assert.equal(h.context.inspect().p.x,x);assert.equal(h.context.inspect().state,'paused');h.get('resume').onclick();assert.equal(h.context.inspect().state,'playing');h.get('restart').onclick();assert.equal(h.context.inspect().p.x,430);assert.equal(h.context.inspect().p.falls,0);});
-test('artist interaction builds the bridge and finish exposes replay',()=>{const h=harness();h.get('play').onclick();h.context.setPlayer({x:2440,y:0,grounded:true});h.key('KeyE');assert.equal(h.context.inspect().drawings.done.has('bridge'),false);h.context.advance(3);assert.equal(h.context.inspect().drawings.done.has('bridge'),true);h.context.inspect().drawings.done.add('door');h.context.setPlayer({x:10831,y:0});h.context.advance(.02);assert.equal(h.context.inspect().state,'over');assert.equal(h.get('end').hidden,false);h.get('replay').onclick();assert.equal(h.context.inspect().drawings.done.has('bridge'),false);assert.equal(h.context.inspect().state,'playing');});
+test('runtime walks autonomously, freezes on pause, and restarts cleanly',()=>{
+  const h=harness();assert.equal(h.context.inspect().state,'idle');h.get('play').onclick();
+  h.context.advance(1);assert.ok(h.context.inspect().p.x>550);
+  h.key('Escape');const x=h.context.inspect().p.x;h.context.advance(1);assert.equal(h.context.inspect().p.x,x);
+  h.get('resume').onclick();h.get('restart').onclick();assert.equal(h.context.inspect().p.x,430);
+});
+test('he stops, addresses the audience angrily, and resumes when helped',()=>{
+  const h=harness();h.get('play').onclick();h.context.setPlayer({x:2476,y:0,vx:0});
+  h.context.advance(7);const p=h.context.inspect().p;
+  assert.equal(p.mood,'impatient');assert.ok(p.viewerLook>.95);assert.equal(p.y,0);assert.ok(p.x<2500);
+  h.key('Space');assert.equal(h.context.inspect().drawings.active.id,'bridge');
+  h.context.advance(4);assert.ok(h.context.inspect().p.x>2740);assert.equal(h.context.inspect().drawings.done.has('bridge'),true);
+  h.context.inspect().drawings.done.add('door');h.context.setPlayer({x:10831,y:240});h.context.advance(.02);
+  assert.equal(h.context.inspect().state,'over');assert.equal(h.get('end').hidden,false);
+});

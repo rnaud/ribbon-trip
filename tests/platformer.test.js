@@ -1,14 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createPlayer,stepPlayer,respawn,surfaces,support} from '../src/platformer/physics.js';
+import {createPlayer,stepPlayer,surfaces,FINISH} from '../src/platformer/physics.js';
+import {createDrawingState,nearbyPuzzle,requestDrawing,advanceDrawing} from '../src/platformer/puzzles.js';
 const dt=1/120;
-function run(p,input,seconds,list=surfaces()){for(let i=0;i<Math.round(seconds/dt);i++)stepPlayer(p,input,dt,list);}
-test('walking stops at a raised face without teleporting onto it',()=>{const p=createPlayer();p.x=730;run(p,{right:true},.5);assert.equal(p.x,763);assert.equal(p.y,0);});
-test('jump clears and lands on the first step',()=>{const p=createPlayer();p.x=710;p.vx=260;p.buffer=.14;run(p,{right:true,jump:true},.55);run(p,{},.4);assert.ok(p.x>780&&p.x<950);assert.equal(p.y,58);assert.ok(p.grounded);});
-test('releasing jump early reduces its height',()=>{const high=createPlayer(),low=createPlayer();high.buffer=low.buffer=.14;run(high,{jump:true},.3);run(low,{},.3);assert.ok(high.y>low.y+30);});
-test('a pit drops the player and respawn returns them to a checkpoint',()=>{const p=createPlayer();p.x=1310;p.y=58;p.grounded=false;run(p,{},1.1);assert.ok(p.y<-480);p.checkpoint=1440;respawn(p,surfaces());assert.equal(p.x,1440);assert.equal(p.y,0);assert.equal(p.falls,1);});
-test('completed bridge remains solid across its full span',()=>{assert.equal(support(2620,surfaces()),undefined);assert.equal(support(2620,surfaces(true)).y,0);const p=createPlayer();p.x=2450;run(p,{right:true},1.2,surfaces(true));assert.ok(p.x>2740);assert.ok(p.grounded);});
-test('all designed gaps except the artist puzzle can be cleared',()=>{const list=surfaces(new Set(['bridge','stairs','lift']),4);for(let i=0;i<list.length-1;i++){const left=list[i],right=list[i+1];if(right.a===left.b||left.b===7000)continue;const p=createPlayer();p.x=left.b-22;p.y=left.y;p.vx=260;p.buffer=.14;let landed=false;for(let f=0;f<150;f++){stepPlayer(p,{right:true,jump:true},dt,list);if(p.grounded&&p.x>right.a){landed=true;break;}}assert.ok(landed,`Gap ${left.b} → ${right.a} must be traversable`);}});
-
-test('spring launches the player onto the otherwise unreachable high ledge',()=>{const p=createPlayer();p.x=6890;p.vx=260;p.buffer=.14;const done=new Set(['spring']);let landed=false;for(let i=0;i<200;i++){stepPlayer(p,{right:true,jump:true},dt,surfaces(done),done);if(p.grounded&&p.x>7040&&p.y===230){landed=true;break;}}assert.ok(landed);});
-test('a player standing on the lift is carried upward and can jump to the landing',()=>{const done=new Set(['lift']);const p=createPlayer();p.x=8760;p.y=0;p.platform='lift';p.platformY=0;for(let t=0;t<3.5;t+=dt)stepPlayer(p,{},dt,surfaces(done,t),done);assert.equal(p.y,250);assert.equal(p.platform,'lift');p.buffer=.14;p.vx=260;let landed=false;for(let t=3.5;t<4.7;t+=dt){stepPlayer(p,{right:true,jump:true},dt,surfaces(done,t),done);if(p.grounded&&p.x>8920){landed=true;break;}}assert.ok(landed);});
+test('he walks without input, stops at missing ink, and cannot jump',()=>{
+  const p=createPlayer();for(let i=0;i<120;i++)stepPlayer(p,null,dt,surfaces());assert.ok(p.x>550);
+  p.x=2470;for(let i=0;i<600;i++)stepPlayer(p,{jump:true,right:true},dt,surfaces());
+  assert.ok(p.x<2500);assert.equal(p.vx,0);assert.equal(p.y,0);assert.equal(p.grounded,true);
+});
+test('freshly drawn bridge supports walking before the drawing completes',()=>{
+  const d=createDrawingState();requestDrawing(d,2440);d.age=1.1;
+  const p=createPlayer();p.x=2530;
+  for(let i=0;i<120;i++)stepPlayer(p,null,dt,surfaces(d),d.done);
+  assert.ok(p.x>2550&&p.x<2620);assert.equal(p.y,0);assert.equal(d.done.has('bridge'),false);
+});
+test('the entire cartoon completes with only five help requests and no jumping',()=>{
+  const p=createPlayer(),d=createDrawingState(),helped=[],waited=new Map();let finished=false,maxY=0;
+  for(let i=0;i<120*160;i++){
+    const time=i*dt,completed=advanceDrawing(d,dt);
+    if(completed?.id==='lift')d.liftStartedAt=time;
+    const result=stepPlayer(p,null,dt,surfaces(d,time),d.done);
+    assert.ok(Number.isFinite(p.y)&&p.y>=0);assert.equal(p.grounded,true);maxY=Math.max(maxY,p.y);
+    const q=nearbyPuzzle(p.x,d);
+    if(result.blocked&&q&&!d.active){
+      const wait=(waited.get(q.id)??0)+dt;waited.set(q.id,wait);
+      if(wait>5){helped.push(requestDrawing(d,p.x).id);}
+    }
+    if(result.finished){finished=true;break;}
+  }
+  assert.ok(finished,`stuck at ${p.x}, ${p.y}`);assert.ok(p.x>=FINISH);assert.ok(maxY>239);
+  assert.deepEqual(helped,['bridge','stairs','slope','lift','door']);
+});
