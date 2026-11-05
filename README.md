@@ -1,56 +1,45 @@
-# Ribbon Trip
+# A Little Line
 
-[Play the game](https://rnaud.github.io/ribbon-trip/) · [GitHub repository](https://github.com/rnaud/ribbon-trip)
+[Play](https://rnaud.github.io/ribbon-trip/) · [Repository](https://github.com/rnaud/ribbon-trip)
 
-A monochrome rhythm runner in the spirit of Vib-Ribbon: one ribbon, three moves, and a 112 BPM fever dream. Every obstacle is locked to the beat, and every move is judged by how close to that beat you pressed. All scenery is generated geometry; the soundtrack is synthesized live with Web Audio.
+A short side-scrolling platformer inspired by Osvaldo Cavandoli’s **La Linea**. A flat blue field, rounded white contour, expressive large-nosed figure, and a ground line that becomes the world. The character’s silhouette joins the ground when standing; jumping temporarily separates it for platforming.
 
-## Run
+Walk across four sections of steps and gaps, ask the artist to draw the missing bridge, and reach the door. Falling returns you to the latest checkpoint; there is no life limit. The old three-button rhythm game has been replaced by movement and platform collision.
+
+## Controls
+
+- Left / Right or A / D: walk
+- Space / Up / W: jump (hold for a higher jump)
+- E: ask the artist; near the unfinished gap, a pencil draws a bridge
+- Esc / P: pause and resume
+- R: restart; Enter: begin, resume, or replay
+- Touch controls appear on touch devices
+- Sound is optional and starts muted. Short synthesized gestures accompany movement and complaints.
+
+## Development
 
 ```sh
 npm install
 npm run dev
+npm test
+npm run build
 ```
 
-Open the URL Vite prints. `npm run build` writes the static site to `dist/`, and `npm run preview` serves that build.
+GitHub Actions builds and publishes `main` to GitHub Pages. The repository URL remains unchanged.
 
-Add `?debug=1` to the URL to expose `window.__game` (and a deterministic `window.__step`) for automated testing.
+## Rendering and structure
 
-## Play
+Smooth Bézier outlines are drawn into a canvas texture and displayed by Three.js. The same drawing function can render still frames without a browser. Simulation uses a fixed 120 Hz step; rendering happens once per animation frame.
 
-- **Enter** — start, then start again after a run
-- **Space / ↑** — hop a block
-- **↓** — duck a gate
-- **→** — phase through a loop
-- **Esc / P** — pause and resume
-- The three control cards are the touch controls on phones.
+- `src/main.js`: input, state, camera, audio, Three.js rendering
+- `src/platformer/physics.js`: collision, movement, checkpoints, level surfaces
+- `src/platformer/drawing.js`: continuous contours, poses, scenery, artist pencil
+- `tests/platformer.test.js`: collision and traversal checks
+- `tests/runtime.test.js`: state/input integration using a stub renderer
+- `npm run render:frames`: drawing-code snapshots in `/tmp/linea-review`
 
-Press the matching move as the obstacle crosses the traveler. Timing is scored in beats against the music:
+The physics and runtime tests do not replace live browser/WebGL testing. The current redesign was verified by production build, eight automated checks, and offline drawing frames; browser automation was unavailable during this update.
 
-| Grade | Window | Points |
-| --- | --- | --- |
-| Perfect | ±0.12 beat (~64 ms) | 300 |
-| Good | ±0.20 beat (~107 ms) | 200 |
-| OK | ±0.32 beat (~171 ms) | 100 |
+## Visual references
 
-Any press outside those windows is a ghost: it breaks the combo but costs no energy. A missed obstacle costs one of five energy points, and the run ends at zero. Combo raises a multiplier every ten hits (to 8×), which raises the score and the amount of chaos in the world.
-
-## How it works
-
-- `src/game/config.js` — tempo, judgment windows, stage patterns, playfield mapping
-- `src/game/game.js` — run state machine, input, and the per-frame loop
-- `src/game/session.js` — scoring, grading, combo, energy, accuracy
-- `src/game/beat-clock.js` — game time that only advances during play
-- `src/game/audio.js` — a look-ahead Web Audio synthesizer (kick, snare, hats, bass, lead)
-- `src/game/hud.js` — every DOM update for the HUD and panels
-- `src/world/scene.js` — the ribbon, scenery, camera shake, ripples, and glitch
-- `src/world/player.js` — the traveler's rig and animations
-- `src/world/obstacles.js` — obstacle silhouettes and their per-frame placement
-- `src/style.css` — the single monochrome theme, including the phone-first playing state
-
-### Timing model
-
-The game clock is owned by the loop and only advances while a run is active, so pausing cannot drift the music. Sound is scheduled ahead on the `AudioContext` clock with an explicit anchor, and the anchor is rebuilt after a pause. Judgment samples the clock on the key event itself, not on the next animation frame.
-
-### Accessibility
-
-Keyboard play works throughout, the HUD announces judgments through a live region, `prefers-reduced-motion` dampens the camera shake and line movement, and every control is a real button with a visible focus ring.
+The proportions, white stroke, and flat background were studied from [RAI’s reference frame](https://www.rainews.it/tgr/lombardia/articoli/2022/08/lom-carlo-bonomi-la-linea-d56027d8-6e7a-4da8-8837-20360253e501.html) and [this profile frame](https://www.telegraf.rs/pop-i-kultura/film-tv/3353081-legendarni-crtani-film-la-linea-svi-volimo-a-evo-kako-je-nastao). [Animaphix’s retrospective](https://www.animaphix.com/la-linea-omaggio-a-osvaldo-cavandoli/) documents the character’s relationship with the line and the artist. All in-game contours are authored in code; reference frames are not included in the shipped game.
