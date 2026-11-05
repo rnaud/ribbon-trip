@@ -1,5 +1,5 @@
 import {actingPose} from './acting.js';
-import {armContour} from './poses.js';
+import {armContour, projectArm} from './poses.js';
 import {contourRig} from './rig.js';
 import {surfaces} from './physics.js';
 import {PUZZLES, drawingTip, drawingProgress, liftHeight} from './puzzles.js';
@@ -53,15 +53,13 @@ function character(){
   // One outline: heel, back, gesturing hand, shoulder, enormous nose, chin, belly, toe.
   const warp=(x,y)=>{
     const h=Math.max(0,Math.min(1,-y/185));
-    const arm=x<-32&&y<-80&&y>-175;
-    const flourish=pose.laugh*Math.sin(time*11)*11+pose.panic*Math.sin(time*22)*15+pose.annoyed*Math.sin(time*8)*6;
-    return project(x+lean*h+(arm?flourish*.25:0),y+nod*h*h+(arm?flourish:0));
+    return project(x+lean*h,y+nod*h*h);
   };
   const c={moveTo:(x,y)=>pen.moveTo(...warp(x,y)),lineTo:(x,y)=>pen.lineTo(...warp(x,y)),bezierCurveTo:(a,b,d,e,f,g)=>pen.bezierCurveTo(...warp(a,b),...warp(d,e),...warp(f,g))};
-  const backArm=armContour(pose),frontArm=armContour(pose,true);
+  const backArm=projectArm(armContour(pose),warp),frontArm=projectArm(armContour(pose,true),warp);
   pen.beginPath();c.moveTo(-27-stride*.4,bounce);
   c.bezierCurveTo(-19-stride*.3,-13,-21,-39,-22,-66);
-  for(const [ax,ay] of backArm)c.lineTo(ax,ay);
+  for(const [ax,ay] of backArm)pen.lineTo(ax,ay);
   // Morph the profile into a rounded three-quarter face as the head turns.
   // A separate front drawing keeps the nose readable instead of flattening it.
   const headCurve=(side,front)=>c.bezierCurveTo(...side.map((v,i)=>v+(front[i]-v)*gaze));
@@ -73,7 +71,7 @@ function character(){
   const mouth=pose.mouth*(15+Math.sin(time*15)*5);
   headCurve([37,-137+mouth,28,-141+mouth,24,-145+mouth],[17,-130,15,-130,14,-130]);
   headCurve([24,-134+mouth*.4,15,-131+mouth*.3,10,-130],[13,-130,11,-130,10,-130]);
-  for(const [ax,ay] of frontArm)c.lineTo(ax,ay);
+  for(const [ax,ay] of frontArm)pen.lineTo(ax,ay);
   c.bezierCurveTo(28,-36,24,-13,22+stride*.5,0);
   c.lineTo(30+stride*.5,0);pen.fillStyle=BLUE;pen.fill();pen.stroke();pen.fillStyle=INK;
   if(gaze>.2){
@@ -89,7 +87,7 @@ function character(){
   // Filling closes the attachment internally; stroking must not draw that seam.
   for(const arm of [backArm,frontArm]){
     pen.beginPath();
-    arm.forEach(([ax,ay],i)=>i?c.lineTo(ax,ay):c.moveTo(ax,ay));
+    arm.forEach(([ax,ay],i)=>i?pen.lineTo(ax,ay):pen.moveTo(ax,ay));
     pen.fillStyle=BLUE;pen.fill();pen.stroke();
   }
   pen.fillStyle=INK;

@@ -28,7 +28,7 @@ GitHub Actions builds and publishes `main` to GitHub Pages. Tests cover a comple
 
 ## Rendering and acting
 
-A procedural Three.js bone rig articulates the hand-authored contour before orthographic projection. The canvas texture is displayed by Three.js. Opaque foreground hands hide head and facial lines behind them. Arms, mouth, head, and torso blend through critically damped channels rather than switching outlines. Foot spacing stays fixed while stationary. Waiting progresses from curiosity to asking to two-handed complaints aimed at the viewer; helping him brings relief.
+A procedural Three.js bone rig articulates the hand-authored contour before orthographic projection. The canvas texture is displayed by Three.js. Hands keep a fixed palm and finger silhouette, rotating at the wrist while elbow and shoulder positions blend. They are excluded from torso skin deformation. Opaque foreground hands hide head and facial lines behind them. Arms, mouth, head, and torso blend through critically damped channels rather than switching outlines. Foot spacing stays fixed while stationary. Waiting progresses from curiosity to asking to two-handed complaints aimed at the viewer; helping him brings relief.
 
 - `src/main.js`: autonomous scene state, help input, camera, sound, renderer
 - `src/platformer/physics.js`: automatic contour-following and safe stopping

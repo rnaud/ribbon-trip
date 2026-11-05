@@ -61,3 +61,23 @@ test('feet retain the same contact spacing through every stationary reaction',as
     for(const foot of [-27-stride*.4,30+stride*.5])assert.ok(Math.abs(project(foot,0)[0]-foot)<1e-8);
   }
 });
+
+test('projected hands retain their shape throughout pose transitions',async()=>{
+  const {armContour,projectArm}=await import('../src/platformer/poses.js');
+  const {updateActing}=await import('../src/platformer/acting.js');
+  const p=createPlayer();let reference=null;
+  for(const mood of ['neutral','curious','impatient','sigh','delighted']){
+    p.mood=mood;
+    for(let frame=0;frame<60;frame++){
+      updateActing(p,1/120);
+      for(const front of [false,true]){
+        const arm=armContour(p.acting,front);
+        const projected=projectArm(arm,(x,y)=>[x+.002*y*y,y+Math.sin(x*.04)*8]);
+        const hand=projected.slice(arm.handStart,arm.handEnd);
+        const distances=hand.map(a=>hand.map(b=>Math.hypot(a[0]-b[0],a[1]-b[1]))).flat();
+        reference??=distances;
+        distances.forEach((distance,i)=>assert.ok(Math.abs(distance-reference[i])<1e-8));
+      }
+    }
+  }
+});

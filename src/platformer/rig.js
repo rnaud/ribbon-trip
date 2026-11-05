@@ -40,7 +40,7 @@ export function contourRig(p,time,playing=true){
   head.rotation.set(.06*breath,-motion*.2*Math.sin(phase-.7)+-asking*.3-gaze*.3,
     -(p.headLean??motion)*.065+motion*.065*Math.sin(phase-.85)+pose.shame*.18+-asking*.12+gaze*.09+resting*Math.sin(time*1.8)*.025);
   arm.rotation.set(motion*.95*Math.sin(phase+.5)+-asking*.45-airborne*.65,
-    motion*.35*Math.cos(phase),motion*.22*Math.sin(phase+.25)+upset*Math.sin(time*12)*.12+resting*Math.sin(time*2.5-.6)*.055);
+    motion*.35*Math.cos(phase),motion*.22*Math.sin(phase+.25)+upset*Math.sin(time*6)*.06+resting*Math.sin(time*2.5-.6)*.055);
   root.updateMatrixWorld(true);
   return (x,y)=>{
     // Rounded cross-section supplies depth to the otherwise hand-drawn shape.
