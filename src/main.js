@@ -3,7 +3,7 @@ import {createPlayer, stepPlayer, respawn, surfaces} from './platformer/physics.
 
 const $=id=>document.getElementById(id);
 import {createDrawingState, nearbyPuzzle, requestDrawing, advanceDrawing} from './platformer/puzzles.js';
-import {updateIdleActing} from './platformer/acting.js';
+import {updateIdleActing, updateActing} from './platformer/acting.js';
 import {drawScene} from './platformer/drawing.js';
 const sheet=document.createElement('canvas');
 const pen=sheet.getContext('2d');
@@ -60,7 +60,7 @@ function update(dt){
     p.moodTime=Math.max(0,p.moodTime-dt);
     p.idle=p.grounded&&Math.abs(p.vx)<12?p.idle+dt:0;
     const nearby=nearbyPuzzle(p.x,drawings);
-    if(p.moodTime===0){p.mood=drawings.active?'watch':nearby?'curious':p.idle%12>9?'shrug':p.idle%12>7?'impatient':p.idle%12>4?'look':p.idle%12>2?'tap':'neutral';}
+    if(p.moodTime===0){p.mood=drawings.active?'watch':nearby?'curious':p.idle%20>17?'shrug':p.idle%20>14?'impatient':p.idle%20>10?'sigh':p.idle%20>7?'skeptical':p.idle%20>2?'look':'neutral';}
     updateIdleActing(p,dt,{blocked:!!drawings.active||p.moodTime>0||fallTime>0});
     if(fallTime>0){fallTime+=dt;if(fallTime>1.1){respawn(p,surfaces(drawings,time));fallTime=0;mood('embarrassed',2);$('hint').textContent='Let’s pretend that didn’t happen.';}}
     else{
@@ -82,6 +82,7 @@ function update(dt){
 
   }
   if(state==='idle'){p.idle+=dt;updateIdleActing(p,dt);}
+  updateActing(p,dt);
   viewY+=(Math.max(0,p.y-120)*.7-viewY)*Math.min(1,dt*4);ground=baseGround+viewY;
   const target=p.x-vw*(state==='idle'?.58:.32);
   cam+= (target-cam)*Math.min(1,dt*(reduced?20:4));

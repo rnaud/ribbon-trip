@@ -38,7 +38,7 @@ export function surfaces(drawn=false,time=0){
   return [...SEGMENTS,...extras].sort((a,b)=>a.a-b.a);
 }
 export function support(x, list){return list.find(s=>x>=s.a && x<=s.b);}
-export function createPlayer(){return {x:430,y:0,vx:0,vy:0,grounded:true,coyote:.11,buffer:0,facing:1,checkpoint:430,falls:0,walk:0,bodyLean:0,headLean:0,land:0,anticipation:0,launch:0,idle:0,viewerLook:0,mood:"neutral",moodTime:0,platform:null,platformY:0};}
+export function createPlayer(){return {x:430,y:0,vx:0,vy:0,grounded:true,coyote:.11,buffer:0,facing:1,checkpoint:430,falls:0,walk:0,footStride:0,bodyLean:0,headLean:0,land:0,anticipation:0,launch:0,idle:0,viewerLook:0,mood:"neutral",moodTime:0,platform:null,platformY:0};}
 export function stepPlayer(p,input,dt,list,drawn=new Set()){
   if(p.grounded&&p.platform){const platform=list.find(s=>s.id===p.platform);if(platform)p.y+=platform.y-p.platformY;}
   let jumped=false;
@@ -58,6 +58,8 @@ export function stepPlayer(p,input,dt,list,drawn=new Set()){
   p.x=nx;p.vy-=GRAVITY*dt;p.y+=p.vy*dt;p.grounded=false;p.platform=null;
   if(p.vy<=0){for(const s of list){if(p.x+RADIUS*.5>s.a&&p.x-RADIUS*.5<s.b&&oldY>=s.y-.5&&p.y<=s.y){if(p.vy<-250)p.land=.15;p.y=s.y;p.vy=0;p.grounded=true;p.platform=s.id??null;p.platformY=s.y;break;}}}
   p.walk+=Math.abs(p.x-oldX)*.035;
+  // Freeze the last contact spacing when motion stops: idle acting never slides feet.
+  if(p.grounded&&Math.abs(p.x-oldX)>1e-8)p.footStride=Math.sin(p.walk)*18;
   if(p.grounded){for(const c of CHECKPOINTS)if(p.x>=c)p.checkpoint=Math.max(p.checkpoint,c);}
   return {jumped,fallen:p.y < -480,finished:p.x>=FINISH};
 }

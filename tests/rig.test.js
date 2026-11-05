@@ -31,3 +31,32 @@ test('idle audience glance eases in, holds, and yields to movement and reactions
   p.vx=0;p.viewerLook=1;for(let i=0;i<60;i++)updateIdleActing(p,1/120,{blocked:true});
   assert.ok(p.viewerLook<.01);
 });
+
+test('mood switches blend the arm contour continuously and can be interrupted',async()=>{
+  const {updateActing}=await import('../src/platformer/acting.js');
+  const {armContour}=await import('../src/platformer/poses.js');
+  const p=createPlayer();updateActing(p,1/120);
+  let previous=armContour(p.acting);p.mood='impatient';
+  for(let i=0;i<120;i++){
+    if(i===45)p.mood='curious';
+    updateActing(p,1/120);const next=armContour(p.acting);
+    assert.equal(next.length,previous.length);
+    assert.ok(Math.max(...next.map((v,j)=>Math.hypot(v[0]-previous[j][0],v[1]-previous[j][1])))<4);
+    previous=next;
+  }
+  assert.ok(p.acting.point>.95);assert.ok(p.acting.open<.02);
+});
+test('feet retain the same contact spacing through every stationary reaction',async()=>{
+  const {stepPlayer,surfaces}=await import('../src/platformer/physics.js');
+  const {updateActing}=await import('../src/platformer/acting.js');
+  const p=createPlayer();for(let i=0;i<35;i++)stepPlayer(p,{right:true},1/120,surfaces());
+  for(let i=0;i<25;i++)stepPlayer(p,{},1/120,surfaces());
+  const stride=p.footStride,x=p.x;
+  for(const mood of ['look','skeptical','sigh','impatient','shrug','delighted']){
+    p.mood=mood;
+    for(let i=0;i<120;i++){stepPlayer(p,{},1/120,surfaces());updateActing(p,1/120);}
+    assert.equal(p.footStride,stride);assert.equal(p.x,x);
+    const project=contourRig(p,10);
+    for(const foot of [-27-stride*.4,30+stride*.5])assert.ok(Math.abs(project(foot,0)[0]-foot)<1e-8);
+  }
+});

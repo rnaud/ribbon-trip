@@ -1,3 +1,5 @@
+import {actingPose} from './acting.js';
+import {armContour} from './poses.js';
 import {contourRig} from './rig.js';
 import {surfaces} from './physics.js';
 import {PUZZLES, drawingTip, drawingProgress, liftHeight} from './puzzles.js';
@@ -35,15 +37,13 @@ function terrain(){
 function character(){
   const x=p.x-cam,y=ground-p.y;
   if(x<-160||x>vw+160)return;
-  const walking=Math.abs(p.vx)>10&&p.grounded&&['playing','paused'].includes(state);
-  const stride=walking?Math.sin(p.walk)*18: p.mood==='tap'?Math.sin(time*11)*3:0;
+  const pose=actingPose(p);
+  const walking=pose.walk;
+  const stride=p.footStride??0;
   const bounce=0;
   const gaze=p.viewerLook??0;
-  const emotion=gaze>.25?'audience':p.mood??'neutral';
-  const gesture=askTime>0||state==='over'||['impatient','panic','delighted','surprised','shrug'].includes(emotion);
-  const pointing=['curious','watch','ask'].includes(emotion);
-  const nod=walking?Math.sin(p.walk*2)*4:['look','watch','curious'].includes(emotion)?-8:emotion==='embarrassed'?10:0;
-  const lean=walking?8+Math.sin(p.walk)*4:pointing?9:emotion==='embarrassed'?12:0;
+  const nod=Math.sin(p.walk*2)*4*walking+pose.nod;
+  const lean=(8+Math.sin(p.walk)*4)*walking+pose.lean;
   const project=contourRig(p,time,['playing','paused'].includes(state));
   pen.save();pen.translate(x,y);pen.scale(p.facing,1);
   // Erase only the ground under the figure, allowing its contour to become the ground.
@@ -54,32 +54,13 @@ function character(){
   const warp=(x,y)=>{
     const h=Math.max(0,Math.min(1,-y/185));
     const arm=x<-32&&y<-80&&y>-175;
-    const flourish=emotion==='delighted'?Math.sin(time*11)*11:emotion==='panic'?Math.sin(time*22)*15:emotion==='impatient'?Math.sin(time*8)*6:emotion==='shrug'?12:0;
+    const flourish=pose.laugh*Math.sin(time*11)*11+pose.panic*Math.sin(time*22)*15+pose.annoyed*Math.sin(time*8)*6;
     return project(x+lean*h+(arm?flourish*.25:0),y+nod*h*h+(arm?flourish:0));
   };
   const c={moveTo:(x,y)=>pen.moveTo(...warp(x,y)),lineTo:(x,y)=>pen.lineTo(...warp(x,y)),bezierCurveTo:(a,b,d,e,f,g)=>pen.bezierCurveTo(...warp(a,b),...warp(d,e),...warp(f,g))};
   pen.beginPath();c.moveTo(-27-stride*.4,bounce);
   c.bezierCurveTo(-19-stride*.3,-13,-21,-39,-22,-66);
-  if(pointing){
-    c.bezierCurveTo(-26,-88,-42,-123,-48,-143);
-    c.lineTo(-23,-158);c.bezierCurveTo(-12,-164,-10,-159,-20,-153);
-    c.lineTo(-32,-144);c.bezierCurveTo(-23,-146,-20,-141,-30,-137);
-    c.lineTo(-34,-135);c.bezierCurveTo(-28,-124,-19,-116,-19,-112);
-  }else if(gesture){
-    c.bezierCurveTo(-29,-88,-56,-123,-69,-142);
-    c.bezierCurveTo(-81,-143,-84,-150,-77,-152);
-    c.lineTo(-65,-148);c.bezierCurveTo(-78,-159,-77,-165,-71,-162);
-    c.lineTo(-57,-151);c.bezierCurveTo(-64,-167,-59,-170,-55,-163);
-    c.lineTo(-48,-145);c.bezierCurveTo(-43,-133,-27,-118,-19,-112);
-  }else{
-    const swing=walking?Math.sin(p.walk)*9:0;
-    c.bezierCurveTo(-25,-79,-37,-90,-44,-87+swing);
-    c.bezierCurveTo(-51,-80+swing,-59,-80+swing,-55,-88+swing);
-    c.lineTo(-47,-98+swing);c.bezierCurveTo(-59,-91+swing,-63,-94+swing,-55,-101+swing);
-    c.lineTo(-43,-108+swing);c.bezierCurveTo(-53,-108+swing,-55,-114+swing,-46,-114+swing);
-    c.bezierCurveTo(-34,-113+swing,-24,-104,-20,-99);
-    c.bezierCurveTo(-25,-117,-27,-129,-29,-139);
-  }
+  for(const [ax,ay] of armContour(pose))c.lineTo(ax,ay);
   // Morph the profile into a rounded three-quarter face as the head turns.
   // A separate front drawing keeps the nose readable instead of flattening it.
   const headCurve=(side,front)=>c.bezierCurveTo(...side.map((v,i)=>v+(front[i]-v)*gaze));
@@ -88,10 +69,10 @@ function character(){
   headCurve([76,-148,66,-141,53,-145],[38,-151,35,-145,32,-141]);
   headCurve([43,-148,35,-154,27,-160],[30,-138,27,-135,24,-133]);
   headCurve([34,-147,42,-141,46,-140],[23,-132,21,-131,19,-131]);
-  const mouth=['impatient','panic','ask','delighted'].includes(emotion)?5+Math.sin(time*18)*3:0;
-  headCurve([37,-137+mouth,28,-141+mouth,24,-145],[17,-130,15,-130,14,-130]);
-  headCurve([24,-134,15,-131,10,-130],[13,-130,11,-130,10,-130]);
-  c.bezierCurveTo(19,-109,27,-88,27,-63);
+  const mouth=pose.mouth*(15+Math.sin(time*15)*5);
+  headCurve([37,-137+mouth,28,-141+mouth,24,-145+mouth],[17,-130,15,-130,14,-130]);
+  headCurve([24,-134+mouth*.4,15,-131+mouth*.3,10,-130],[13,-130,11,-130,10,-130]);
+  for(const [ax,ay] of armContour(pose,true))c.lineTo(ax,ay);
   c.bezierCurveTo(28,-36,24,-13,22+stride*.5,0);
   c.lineTo(30+stride*.5,0);pen.fillStyle=BLUE;pen.fill();pen.stroke();pen.fillStyle=INK;
   if(gaze>.2){
@@ -103,15 +84,10 @@ function character(){
     c.moveTo(-2,-138);c.bezierCurveTo(3,-136,9,-136,13,-139);pen.stroke();pen.restore();
   }
   // Expressive action strokes appear only for a complaint or a hard landing.
-  if(gesture){path(c=>{c.moveTo(77,-165);c.lineTo(90,-171);c.moveTo(80,-151);c.lineTo(96,-150);c.moveTo(76,-138);c.lineTo(86,-131);});}
+  if(pose.open>.01){pen.save();pen.globalAlpha=pose.open*.7;path(c=>{c.moveTo(77,-165);c.lineTo(90,-171);c.moveTo(80,-151);c.lineTo(96,-150);});pen.restore();}
   if(p.land>.06){path(c=>{c.moveTo(-43,-12);c.lineTo(-52,-20);c.moveTo(43,-12);c.lineTo(52,-20);});}
   if(!p.grounded&&fallTime===0){ // Feet draw little unfinished curls while airborne.
     path(c=>{c.moveTo(-27-stride*.4,0);c.quadraticCurveTo(-40,3,-44,-4);c.moveTo(30+stride*.5,0);c.quadraticCurveTo(42,3,46,-3);});
-  }
-  if(['curious','look','watch','embarrassed','impatient','panic','delighted','shrug'].includes(emotion)){
-    pen.save();pen.font='italic 27px Georgia';pen.textAlign='center';
-    const symbol={curious:'?',look:'…',watch:'…',embarrassed:'hm.',impatient:'!?',panic:'!',delighted:'ha!',shrug:'…'}[emotion];
-    pen.fillText(symbol,6,-211+Math.sin(time*3)*2);pen.restore();
   }
   pen.restore();
 }

@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import * as Three from 'three';
 import {createCanvas} from '@napi-rs/canvas';
-import {updateIdleActing} from '../src/platformer/acting.js';
+import {updateIdleActing, updateActing} from '../src/platformer/acting.js';
 import * as puzzles from '../src/platformer/puzzles.js';
 import * as physics from '../src/platformer/physics.js';
 import {drawScene} from '../src/platformer/drawing.js';
@@ -13,7 +13,7 @@ function harness(){
   const elements=new Map(),handlers={};
   const get=id=>{if(!elements.has(id))elements.set(id,{clientWidth:1280,clientHeight:720,hidden:false,textContent:'',classList:{toggle(){}},setAttribute(){}});return elements.get(id);};
   const context=vm.createContext({
-    THREE:{...Three,WebGLRenderer:class{setPixelRatio(){}setSize(){}render(){}}},...physics,...puzzles,drawScene,updateIdleActing,
+    THREE:{...Three,WebGLRenderer:class{setPixelRatio(){}setSize(){}render(){}}},...physics,...puzzles,drawScene,updateIdleActing,updateActing,
     document:{getElementById:get,createElement:()=>createCanvas(1280,720),querySelectorAll:()=>[],body:get('body'),addEventListener(){}},
     window:{addEventListener:(name,fn)=>handlers[name]=fn},innerWidth:1280,innerHeight:720,devicePixelRatio:1,
     matchMedia:()=>({matches:false}),ResizeObserver:class{observe(){}},performance:{now:()=>0},requestAnimationFrame(){},setTimeout(){},console,
